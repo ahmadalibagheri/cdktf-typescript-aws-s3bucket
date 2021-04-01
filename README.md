@@ -36,7 +36,7 @@ You can now edit the `main.ts` file if you want to modify any code.
 vim main.ts
 import { Construct } from 'constructs';
 import { App, TerraformOutput, TerraformStack } from 'cdktf';
-import { AwsProvider, S3Bucket } from './.gen/providers/aws';
+import { AwsProvider, s3 } from './.gen/providers/aws';
 
 class MyStack extends TerraformStack {
   constructor(scope: Construct, name: string) {
@@ -48,26 +48,8 @@ class MyStack extends TerraformStack {
 
     const BUCKET_NAME = 'cdktf-typescript-demo-us-east-1';
 
-    const bucket = new S3Bucket(this, 'aws_s3_bucket', {
+    const bucket = new s3.S3Bucket(this, 'aws_s3_bucket', {
       bucket: BUCKET_NAME,
-      versioning: [
-        {
-          enabled: true,
-        },
-      ],
-      serverSideEncryptionConfiguration: [
-        {
-          rule: [
-            {
-              applyServerSideEncryptionByDefault: [
-                {
-                  sseAlgorithm: 'AES256',
-                },
-              ],
-            },
-          ],
-        },
-      ],
       lifecycleRule: [
         { enabled: true, id: 'abort-multipart', prefix: '/', abortIncompleteMultipartUploadDays: 7 },
         { enabled: true, transition: [{ days: 30, storageClass: 'STANDARD_IA' }] },
@@ -76,8 +58,6 @@ class MyStack extends TerraformStack {
         { enabled: false, noncurrentVersionTransition: [{ days: 90, storageClass: 'ONEZONE_IA' }] },
         { enabled: false, transition: [{ days: 365, storageClass: 'GLACIER' }] },
         { enabled: false, noncurrentVersionTransition: [{ days: 365, storageClass: 'ONEZONE_IA' }] },
-        { enabled: false, expiration: [{ days: 365 }] },
-        { enabled: false, noncurrentVersionExpiration: [{ days: 365 }] },
       ],
       tags: {
         Team: 'Devops',
